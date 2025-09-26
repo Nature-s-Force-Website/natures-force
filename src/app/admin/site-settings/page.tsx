@@ -55,6 +55,19 @@ interface FooterData {
   copyright?: string;
 }
 
+interface MetadataData {
+  site_title?: string;
+  site_description?: string;
+  site_keywords?: string;
+  site_author?: string;
+  og_title?: string;
+  og_description?: string;
+  twitter_title?: string;
+  twitter_description?: string;
+  favicon_url?: string;
+  site_logo_url?: string;
+}
+
 export default function SiteSettingsPage() {
   const [activeTab, setActiveTab] = useState("header");
   const [isLoading, setIsLoading] = useState(false);
@@ -77,6 +90,20 @@ export default function SiteSettingsPage() {
     socialLinks: [{ platform: "", href: "", icon: "" }],
     bottomText: "",
     copyright: "",
+  });
+
+  // Metadata state
+  const [metadataData, setMetadataData] = useState<MetadataData>({
+    site_title: "",
+    site_description: "",
+    site_keywords: "",
+    site_author: "",
+    og_title: "",
+    og_description: "",
+    twitter_title: "",
+    twitter_description: "",
+    favicon_url: "/favicon.ico",
+    site_logo_url: "",
   });
 
   useEffect(() => {
@@ -103,6 +130,15 @@ export default function SiteSettingsPage() {
           setFooterData(footerResult.data);
         }
       }
+
+      // Load metadata settings
+      const metadataResponse = await fetch("/api/site-settings/metadata");
+      if (metadataResponse.ok) {
+        const metadataResult = await metadataResponse.json();
+        if (metadataResult) {
+          setMetadataData(metadataResult);
+        }
+      }
     } catch (error) {
       console.error("Failed to load settings:", error);
       setMessage("Failed to load settings");
@@ -115,22 +151,37 @@ export default function SiteSettingsPage() {
     setMessage("");
 
     try {
-      const endpoint =
-        activeTab === "header"
-          ? "/api/site-settings/header"
-          : "/api/site-settings/footer";
-      const data = activeTab === "header" ? headerData : footerData;
+      let endpoint, data, method, requestBody;
+
+      if (activeTab === "metadata") {
+        endpoint = "/api/site-settings/metadata";
+        data = metadataData;
+        method = "PUT";
+        requestBody = JSON.stringify(data);
+      } else {
+        endpoint =
+          activeTab === "header"
+            ? "/api/site-settings/header"
+            : "/api/site-settings/footer";
+        data = activeTab === "header" ? headerData : footerData;
+        method = "POST";
+        requestBody = JSON.stringify({ data });
+      }
 
       const response = await fetch(endpoint, {
-        method: "POST",
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data }),
+        body: requestBody,
       });
 
       if (response.ok) {
         setMessage(
           `${
-            activeTab === "header" ? "Header" : "Footer"
+            activeTab === "header"
+              ? "Header"
+              : activeTab === "footer"
+              ? "Footer"
+              : "Metadata"
           } settings saved successfully!`
         );
       } else {
@@ -359,6 +410,16 @@ export default function SiteSettingsPage() {
               }`}
             >
               Footer
+            </button>
+            <button
+              onClick={() => setActiveTab("metadata")}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "metadata"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Site Metadata
             </button>
           </nav>
         </div>
@@ -837,6 +898,215 @@ export default function SiteSettingsPage() {
           </div>
         )}
 
+        {/* Metadata Settings */}
+        {activeTab === "metadata" && (
+          <div className="space-y-8">
+            {/* Basic Site Information */}
+            <div className="bg-white p-6 rounded-lg border">
+              <h2 className="text-xl font-semibold mb-4">
+                Basic Site Information
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Site Title
+                  </label>
+                  <input
+                    type="text"
+                    value={metadataData.site_title || ""}
+                    onChange={(e) =>
+                      setMetadataData({
+                        ...metadataData,
+                        site_title: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                    placeholder="Your Company Name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Site Author
+                  </label>
+                  <input
+                    type="text"
+                    value={metadataData.site_author || ""}
+                    onChange={(e) =>
+                      setMetadataData({
+                        ...metadataData,
+                        site_author: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                    placeholder="Company Name"
+                  />
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Site Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={metadataData.site_description || ""}
+                  onChange={(e) =>
+                    setMetadataData({
+                      ...metadataData,
+                      site_description: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  placeholder="A brief description of your website for search engines"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Keywords (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={metadataData.site_keywords || ""}
+                  onChange={(e) =>
+                    setMetadataData({
+                      ...metadataData,
+                      site_keywords: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  placeholder="keyword1, keyword2, keyword3"
+                />
+              </div>
+            </div>
+
+            {/* Open Graph Settings */}
+            <div className="bg-white p-6 rounded-lg border">
+              <h2 className="text-xl font-semibold mb-4">
+                Open Graph (Social Media Sharing)
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Open Graph Title
+                  </label>
+                  <input
+                    type="text"
+                    value={metadataData.og_title || ""}
+                    onChange={(e) =>
+                      setMetadataData({
+                        ...metadataData,
+                        og_title: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                    placeholder="Title that appears when sharing on social media"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Open Graph Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={metadataData.og_description || ""}
+                    onChange={(e) =>
+                      setMetadataData({
+                        ...metadataData,
+                        og_description: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                    placeholder="Description that appears when sharing on social media"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Twitter Settings */}
+            <div className="bg-white p-6 rounded-lg border">
+              <h2 className="text-xl font-semibold mb-4">
+                Twitter Card Settings
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Twitter Title
+                  </label>
+                  <input
+                    type="text"
+                    value={metadataData.twitter_title || ""}
+                    onChange={(e) =>
+                      setMetadataData({
+                        ...metadataData,
+                        twitter_title: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                    placeholder="Title for Twitter cards"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Twitter Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={metadataData.twitter_description || ""}
+                    onChange={(e) =>
+                      setMetadataData({
+                        ...metadataData,
+                        twitter_description: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                    placeholder="Description for Twitter cards"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Assets */}
+            <div className="bg-white p-6 rounded-lg border">
+              <h2 className="text-xl font-semibold mb-4">Site Assets</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Favicon URL
+                  </label>
+                  <input
+                    type="url"
+                    value={metadataData.favicon_url || ""}
+                    onChange={(e) =>
+                      setMetadataData({
+                        ...metadataData,
+                        favicon_url: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                    placeholder="/favicon.ico"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Site Logo URL
+                  </label>
+                  <input
+                    type="url"
+                    value={metadataData.site_logo_url || ""}
+                    onChange={(e) =>
+                      setMetadataData({
+                        ...metadataData,
+                        site_logo_url: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                    placeholder="https://example.com/logo.png"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Save Button */}
         <div className="flex justify-end mt-8">
           <button
@@ -846,7 +1116,13 @@ export default function SiteSettingsPage() {
           >
             {isSaving
               ? "Saving..."
-              : `Save ${activeTab === "header" ? "Header" : "Footer"} Settings`}
+              : `Save ${
+                  activeTab === "header"
+                    ? "Header"
+                    : activeTab === "footer"
+                    ? "Footer"
+                    : "Metadata"
+                } Settings`}
           </button>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase";
 import { useForm } from "react-hook-form";
 import MediaSelector from "./MediaSelector";
 import ComponentSelector from "./ComponentSelector";
+import AdvancedFieldEditor from "./AdvancedFieldEditor";
 import {
   getComponentDefinition,
   ComponentDefinition,
@@ -253,168 +254,16 @@ export default function PageEditor({
         </div>
 
         {/* Component Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {componentDef.fields.map((field) => {
-            const value = block.data[field.key] || "";
-
-            return (
-              <div
-                key={field.key}
-                className={field.type === "textarea" ? "md:col-span-2" : ""}
-              >
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.label}
-                  {field.required && <span className="text-red-500">*</span>}
-                </label>
-
-                {field.type === "text" && (
-                  <input
-                    type="text"
-                    value={value}
-                    onChange={(e) =>
-                      updateBlockData(block.id, field.key, e.target.value)
-                    }
-                    placeholder={field.placeholder}
-                    className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                )}
-
-                {field.type === "textarea" && (
-                  <textarea
-                    value={value}
-                    onChange={(e) =>
-                      updateBlockData(block.id, field.key, e.target.value)
-                    }
-                    placeholder={field.placeholder}
-                    rows={3}
-                    className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                )}
-
-                {field.type === "image" && (
-                  <div className="space-y-2">
-                    <div className="flex space-x-2">
-                      <input
-                        type="url"
-                        value={value}
-                        onChange={(e) =>
-                          updateBlockData(block.id, field.key, e.target.value)
-                        }
-                        placeholder="Image URL or click to select"
-                        className="flex-1 border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => openMediaSelector(index, field.key)}
-                        className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-md hover:bg-indigo-100"
-                      >
-                        Select
-                      </button>
-                    </div>
-                    {value && (
-                      <div className="relative w-full h-32 border border-gray-200 rounded-md overflow-hidden">
-                        <img
-                          src={value}
-                          alt={field.label}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {field.type === "select" && field.options && (
-                  <select
-                    value={value}
-                    onChange={(e) =>
-                      updateBlockData(block.id, field.key, e.target.value)
-                    }
-                    className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    {field.options.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                )}
-
-                {field.type === "color" && (
-                  <div className="flex space-x-2">
-                    <input
-                      type="color"
-                      value={value || "#000000"}
-                      onChange={(e) =>
-                        updateBlockData(block.id, field.key, e.target.value)
-                      }
-                      className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={value}
-                      onChange={(e) =>
-                        updateBlockData(block.id, field.key, e.target.value)
-                      }
-                      placeholder="#000000"
-                      className="flex-1 border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                )}
-
-                {field.type === "number" && (
-                  <input
-                    type="number"
-                    value={value}
-                    onChange={(e) =>
-                      updateBlockData(
-                        block.id,
-                        field.key,
-                        parseFloat(e.target.value)
-                      )
-                    }
-                    step="0.1"
-                    min="0"
-                    max="1"
-                    className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                )}
-
-                {field.type === "boolean" && (
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={value === true}
-                      onChange={(e) =>
-                        updateBlockData(block.id, field.key, e.target.checked)
-                      }
-                      className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    />
-                    <span className="ml-2 text-sm text-gray-600">
-                      Enable this option
-                    </span>
-                  </label>
-                )}
-
-                {field.type === "url" && (
-                  <input
-                    type="url"
-                    value={value}
-                    onChange={(e) =>
-                      updateBlockData(block.id, field.key, e.target.value)
-                    }
-                    placeholder={field.placeholder || "https://example.com"}
-                    className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                )}
-
-                {field.description && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    {field.description}
-                  </p>
-                )}
-              </div>
-            );
-          })}
+        <div className="space-y-6">
+          {componentDef.fields.map((field) => (
+            <AdvancedFieldEditor
+              key={field.key}
+              field={field}
+              value={block.data[field.key]}
+              onChange={(value) => updateBlockData(block.id, field.key, value)}
+              path={`block_${index}_${field.key}`}
+            />
+          ))}
         </div>
       </div>
     );
@@ -459,7 +308,7 @@ export default function PageEditor({
               </label>
               <input
                 {...form.register("title", { required: "Title is required" })}
-                className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full border-slate-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
 
@@ -469,7 +318,7 @@ export default function PageEditor({
               </label>
               <input
                 {...form.register("slug", { required: "Slug is required" })}
-                className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full border-slate-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
 
@@ -479,7 +328,7 @@ export default function PageEditor({
               </label>
               <select
                 {...form.register("status")}
-                className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full border-slate-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-teal-500 focus:border-teal-500"
               >
                 <option value="draft">Draft</option>
                 <option value="published">Published</option>
@@ -492,7 +341,7 @@ export default function PageEditor({
               </label>
               <input
                 {...form.register("meta_title")}
-                className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full border-slate-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
 
@@ -501,7 +350,7 @@ export default function PageEditor({
                 <input
                   type="checkbox"
                   {...form.register("is_homepage")}
-                  className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className="rounded border-slate-300 text-teal-600 shadow-sm focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
                 />
                 <span className="ml-2 text-sm text-gray-700">
                   Set as homepage
@@ -516,7 +365,7 @@ export default function PageEditor({
               <textarea
                 {...form.register("meta_description")}
                 rows={3}
-                className="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full border-slate-300 rounded-md shadow-sm px-3 py-2 border focus:outline-none focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
           </div>
@@ -529,7 +378,7 @@ export default function PageEditor({
             <button
               type="button"
               onClick={() => setShowComponentSelector(true)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
             >
               Add Component
             </button>
@@ -541,7 +390,7 @@ export default function PageEditor({
               <button
                 type="button"
                 onClick={() => setShowComponentSelector(true)}
-                className="text-indigo-600 hover:text-indigo-800"
+                className="text-teal-600 hover:text-teal-800"
               >
                 Add your first component
               </button>

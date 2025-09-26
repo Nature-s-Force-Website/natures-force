@@ -73,8 +73,8 @@ export default function ComponentSelector({
                 onClick={() => setSelectedCategory("all")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedCategory === "all"
-                    ? "bg-indigo-100 text-indigo-700"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-teal-100 text-teal-700"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 }`}
               >
                 All Components
@@ -85,8 +85,8 @@ export default function ComponentSelector({
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     selectedCategory === category
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-teal-100 text-teal-700"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
                 >
                   {getCategoryLabel(category)}
@@ -104,13 +104,13 @@ export default function ComponentSelector({
                   onSelectComponent(component.type);
                   onClose();
                 }}
-                className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-md cursor-pointer transition-all group"
+                className="border border-slate-200 rounded-lg p-4 hover:border-teal-300 hover:shadow-md cursor-pointer transition-all group"
               >
                 {/* Component Icon & Name */}
                 <div className="flex items-start space-x-3 mb-3">
                   <div className="text-2xl">{component.icon}</div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-gray-900 group-hover:text-indigo-600">
+                    <h3 className="text-sm font-medium text-slate-900 group-hover:text-teal-600">
                       {component.name}
                     </h3>
                     <p className="text-xs text-gray-500 capitalize">
@@ -134,7 +134,7 @@ export default function ComponentSelector({
 
                 {/* Add Button */}
                 <div className="mt-3 flex justify-end">
-                  <button className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-md hover:bg-indigo-100 transition-colors">
+                  <button className="text-xs bg-teal-50 text-teal-600 px-3 py-1 rounded-md hover:bg-teal-100 transition-colors">
                     Add Component
                   </button>
                 </div>

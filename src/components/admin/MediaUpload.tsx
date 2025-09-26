@@ -146,22 +146,22 @@ export default function MediaUpload({
       >
         {uploading ? (
           <div className="space-y-4">
-            <div className="animate-spin h-8 w-8 border-b-2 border-indigo-600 rounded-full mx-auto"></div>
+            <div className="animate-spin h-8 w-8 border-b-2 border-teal-600 rounded-full mx-auto"></div>
             <div>
-              <p className="text-sm text-gray-600">Uploading...</p>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <p className="text-sm text-slate-600">Uploading...</p>
+              <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
                 <div
-                  className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-teal-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 ></div>
               </div>
-              <p className="text-xs text-gray-500 mt-1">{uploadProgress}%</p>
+              <p className="text-xs text-slate-500 mt-1">{uploadProgress}%</p>
             </div>
           </div>
         ) : (
           <div className="space-y-2">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-12 w-12 text-slate-400"
               stroke="currentColor"
               fill="none"
               viewBox="0 0 48 48"
@@ -174,13 +174,13 @@ export default function MediaUpload({
               />
             </svg>
             <div>
-              <p className="text-sm text-gray-600">
-                <span className="font-medium text-indigo-600">
+              <p className="text-sm text-slate-600">
+                <span className="font-medium text-teal-600">
                   Click to upload
                 </span>{" "}
                 or drag and drop
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-500">
                 {acceptedTypes.join(", ")} up to {maxFileSize}MB
               </p>
             </div>

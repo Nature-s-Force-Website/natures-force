@@ -157,25 +157,27 @@ export default function GlobalFooter({ data }: GlobalFooterProps) {
   }
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-1">
-            {footerData.logo && (
-              <div className="mb-4">
-                <Image
-                  src={footerData.logo.src}
-                  alt={footerData.logo.alt}
-                  width={footerData.logo.width || 120}
-                  height={footerData.logo.height || 30}
-                  className="h-8 w-auto filter invert"
-                />
-              </div>
-            )}
+            {footerData.logo &&
+              footerData.logo.src &&
+              footerData.logo.src.trim() !== "" && (
+                <div className="mb-4">
+                  <Image
+                    src={footerData.logo.src}
+                    alt={footerData.logo.alt || "Logo"}
+                    width={footerData.logo.width || 120}
+                    height={footerData.logo.height || 30}
+                    className="h-8 w-auto filter invert"
+                  />
+                </div>
+              )}
             {footerData.description && (
-              <p className="text-gray-400 mb-4 max-w-xs">
+              <p className="text-gray-300 mb-4 max-w-xs">
                 {footerData.description}
               </p>
             )}
@@ -189,7 +191,7 @@ export default function GlobalFooter({ data }: GlobalFooterProps) {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-300 hover:text-teal-400 transition-colors duration-300"
                     aria-label={social.platform}
                   >
                     {getSocialIcon(social.platform)}
@@ -203,12 +205,12 @@ export default function GlobalFooter({ data }: GlobalFooterProps) {
           {footerData.sections.map((section, index) => (
             <div key={index} className="lg:col-span-1">
               <h3 className="text-white font-semibold mb-4">{section.title}</h3>
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
                     <Link
                       href={link.href}
-                      className="text-gray-400 hover:text-white transition-colors text-sm"
+                      className="text-gray-300 hover:text-teal-400 transition-colors duration-300 text-sm"
                     >
                       {link.label}
                     </Link>
@@ -220,17 +222,30 @@ export default function GlobalFooter({ data }: GlobalFooterProps) {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 mt-8 pt-8">
+        <div className="border-t border-slate-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               {footerData.copyright && (
-                <p className="text-gray-400 text-sm">{footerData.copyright}</p>
+                <p className="text-gray-300 text-sm">{footerData.copyright}</p>
               )}
             </div>
-            <div>
+            <div className="text-center md:text-right">
               {footerData.bottomText && (
-                <p className="text-gray-400 text-sm">{footerData.bottomText}</p>
+                <p className="text-gray-300 text-sm mb-1">
+                  {footerData.bottomText}
+                </p>
               )}
+              <p className="text-gray-400 text-sm">
+                Developed by{" "}
+                <a
+                  href="https://harishhona.com.np"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-teal-400 hover:text-teal-300 transition-colors"
+                >
+                  Harish Hona
+                </a>
+              </p>
             </div>
           </div>
         </div>

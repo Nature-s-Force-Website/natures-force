@@ -36,7 +36,7 @@ function HeroBlock({ content }: { content: ContentBlock["content"] }) {
             <div className="mt-8">
               <a
                 href={content.button_link}
-                className="bg-indigo-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-indigo-700 transition-colors"
+                className="bg-teal-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-teal-700 transition-colors"
               >
                 {content.button_text}
               </a>

@@ -100,7 +100,7 @@ export default function MediaLibrary({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin h-8 w-8 border-b-2 border-indigo-600 rounded-full"></div>
+        <div className="animate-spin h-8 w-8 border-b-2 border-teal-600 rounded-full"></div>
       </div>
     );
   }
@@ -130,7 +130,7 @@ export default function MediaLibrary({
         <h2 className="text-xl font-semibold text-gray-900">Media Library</h2>
         <button
           onClick={() => setShowUpload(!showUpload)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+          className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
         >
           {showUpload ? "Cancel" : "Upload Media"}
         </button>
@@ -225,7 +225,7 @@ export default function MediaLibrary({
 
                 {/* Selected indicator */}
                 {isSelected(mediaAsset) && mode === "select" && (
-                  <div className="absolute top-2 right-2 bg-indigo-600 text-white rounded-full p-1">
+                  <div className="absolute top-2 right-2 bg-teal-600 text-white rounded-full p-1">
                     <svg
                       className="h-4 w-4"
                       fill="none"
