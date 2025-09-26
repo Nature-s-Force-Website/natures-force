@@ -1,0 +1,27 @@
+# Robots.txt for NaturesForce Contract Packing Website
+# https://www.robotstxt.org/
+
+# Allow all crawlers to access the main website
+User-agent: *
+
+# Block access to admin pages and sensitive areas
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /api/
+
+# Block access to development and configuration files
+Disallow: /.env*
+Disallow: /.next/
+Disallow: /node_modules/
+
+# Allow access to important pages
+Allow: /
+Allow: /about/
+Allow: /services/
+Allow: /contact/
+
+# Sitemap location (update this URL when you deploy)
+# Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl-delay for polite crawling (optional)
+Crawl-delay: 1

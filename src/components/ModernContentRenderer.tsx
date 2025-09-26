@@ -1,12 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getComponentDefinition } from "@/lib/component-types";
 import Image from "next/image";
 import Link from "next/link";
 import WhatWeOfferCard from "./site/WhatWeOfferCard";
 
+// Import types from the WhatWeOfferCard component
+interface WhatWeOfferItem {
+  text: string;
+  icon?: string;
+}
+
+// Define proper types for component data
+interface ComponentData {
+  [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+// Helper function to safely extract typed values
+const safeString = (value: unknown): string => String(value || "");
+const safeNumber = (value: unknown): number => Number(value) || 0;
+const safeBoolean = (value: unknown): boolean => Boolean(value);
+
 interface ContentBlock {
   id: string;
   type: string;
-  data: Record<string, any>;
+  data: ComponentData;
 }
 
 interface ContentRendererProps {
@@ -62,16 +79,18 @@ export default function ModernContentRenderer({
           <div key={block.id} className="py-16 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <WhatWeOfferCard
-                title={block.data.title}
-                subtitle={block.data.subtitle}
-                items={block.data.items || []}
-                cardStyle={block.data.cardStyle}
-                layout={block.data.layout}
-                image={block.data.image}
-                showCTA={block.data.showCTA}
-                ctaText={block.data.ctaText}
-                ctaLink={block.data.ctaLink}
-                className={block.data.className}
+                title={block.data.title as string}
+                subtitle={block.data.subtitle as string}
+                items={(block.data.items as WhatWeOfferItem[]) || []}
+                cardStyle={
+                  block.data.cardStyle as "default" | "gradient" | "bordered"
+                }
+                layout={block.data.layout as "split" | "stacked"}
+                image={block.data.image as string}
+                showCTA={block.data.showCTA as boolean}
+                ctaText={block.data.ctaText as string}
+                ctaLink={block.data.ctaLink as string}
+                className={block.data.className as string}
               />
             </div>
           </div>
@@ -92,25 +111,26 @@ export default function ModernContentRenderer({
 
 // Component Implementations
 
-function HeroBanner({ data }: { data: any }) {
+function HeroBanner({ data }: { data: ComponentData }) {
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
-      {data.backgroundImage && data.backgroundImage.trim() !== "" && (
-        <div className="absolute inset-0">
-          <Image
-            src={data.backgroundImage}
-            alt="Hero background"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-teal-800/60 to-green-900/80"
-            style={{ opacity: data.overlayOpacity || 0.85 }}
-          />
-        </div>
-      )}
+      {(data.backgroundImage as string) &&
+        (data.backgroundImage as string).trim() !== "" && (
+          <div className="absolute inset-0">
+            <Image
+              src={data.backgroundImage as string}
+              alt="Hero background"
+              fill
+              className="object-cover"
+              priority
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-teal-800/60 to-green-900/80"
+              style={{ opacity: (data.overlayOpacity as number) || 0.85 }}
+            />
+          </div>
+        )}
 
       {/* Decorative Elements */}
       <div className="absolute inset-0 opacity-10">
@@ -218,7 +238,7 @@ function HeroBanner({ data }: { data: any }) {
   );
 }
 
-function HeroSplit({ data }: { data: any }) {
+function HeroSplit({ data }: { data: ComponentData }) {
   const imageOnRight = data.imagePosition === "right";
 
   return (
@@ -357,7 +377,7 @@ function HeroSplit({ data }: { data: any }) {
   );
 }
 
-function FeatureGrid({ data }: { data: any }) {
+function FeatureGrid({ data }: { data: ComponentData }) {
   return (
     <div
       className="py-24 relative overflow-hidden"
@@ -505,7 +525,7 @@ function FeatureGrid({ data }: { data: any }) {
   );
 }
 
-function Testimonials({ data }: { data: any }) {
+function Testimonials({ data }: { data: ComponentData }) {
   return (
     <div
       className="py-20"
@@ -622,7 +642,7 @@ function Testimonials({ data }: { data: any }) {
   );
 }
 
-function CTASection({ data }: { data: any }) {
+function CTASection({ data }: { data: ComponentData }) {
   return (
     <div
       className="py-16"
@@ -653,7 +673,7 @@ function CTASection({ data }: { data: any }) {
   );
 }
 
-function StatsSection({ data }: { data: any }) {
+function StatsSection({ data }: { data: ComponentData }) {
   return (
     <div
       className="py-16"
@@ -683,7 +703,7 @@ function StatsSection({ data }: { data: any }) {
   );
 }
 
-function ImageGallery({ data }: { data: any }) {
+function ImageGallery({ data }: { data: ComponentData }) {
   const columns = parseInt(data.columns) || 3;
   const gridCols =
     {
@@ -728,7 +748,7 @@ function ImageGallery({ data }: { data: any }) {
   );
 }
 
-function TeamProfiles({ data }: { data: any }) {
+function TeamProfiles({ data }: { data: ComponentData }) {
   return (
     <div className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -801,7 +821,7 @@ function TeamProfiles({ data }: { data: any }) {
   );
 }
 
-function ContactSection({ data }: { data: any }) {
+function ContactSection({ data }: { data: ComponentData }) {
   const getSocialIcon = (iconType: string) => {
     const icons = {
       linkedin: "💼",
@@ -1033,7 +1053,7 @@ function ContactSection({ data }: { data: any }) {
   );
 }
 
-function FAQSection({ data }: { data: any }) {
+function FAQSection({ data }: { data: ComponentData }) {
   return (
     <div className="py-20 bg-gradient-to-br from-slate-50 to-teal-50 relative overflow-hidden">
       {/* Background Pattern */}
