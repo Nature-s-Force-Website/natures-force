@@ -4,9 +4,10 @@ import { createServerImageKit } from '@/lib/imagekit'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createServerComponentClient()
 
     // Check if user is authenticated admin
@@ -30,7 +31,7 @@ export async function DELETE(
     const { data: mediaAsset, error: fetchError } = await supabase
       .from('media_assets')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (fetchError || !mediaAsset) {
@@ -50,7 +51,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('media_assets')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (deleteError) {
       console.error('Database delete error:', deleteError)

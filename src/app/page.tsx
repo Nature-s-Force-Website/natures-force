@@ -2,6 +2,7 @@ import { createServerComponentClient } from "@/lib/supabase-server";
 import ModernContentRenderer from "@/components/ModernContentRenderer";
 import { Suspense } from "react";
 import { PageSkeleton } from "@/components/ui/Loading";
+import Link from "next/link";
 
 async function HomePage() {
   const supabase = await createServerComponentClient();
@@ -48,7 +49,7 @@ async function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Link
               href="/admin"
               className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold rounded-2xl hover:from-teal-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
@@ -72,14 +73,14 @@ async function HomePage() {
                 />
               </svg>
               Go to Admin Panel
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/about"
               className="inline-flex items-center px-8 py-4 bg-white text-gray-700 font-semibold rounded-2xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg"
             >
               Learn More
-            </a>
+            </Link>
           </div>
 
           {/* Features preview */}

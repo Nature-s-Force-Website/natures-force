@@ -126,7 +126,7 @@ export default function GlobalHeader({ data }: GlobalHeaderProps) {
                 />
               ) : (
                 <span className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-                  Nature's Force
+                  Nature&apos;s Force
                 </span>
               )}
             </Link>

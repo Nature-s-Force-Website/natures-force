@@ -305,8 +305,8 @@ export default function AdvancedFieldEditor({
 
         {arrayValue.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            No {field.label.toLowerCase()} added yet. Click the "Add" button
-            above to create your first one.
+            No {field.label.toLowerCase()} added yet. Click the &quot;Add&quot;
+            button above to create your first one.
           </div>
         )}
       </div>

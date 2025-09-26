@@ -1,5 +1,6 @@
 import { getComponentDefinition } from "@/lib/component-types";
 import Image from "next/image";
+import Link from "next/link";
 import WhatWeOfferCard from "./site/WhatWeOfferCard";
 
 interface ContentBlock {
@@ -571,7 +572,7 @@ function Testimonials({ data }: { data: any }) {
                   {/* Testimonial text */}
                   {testimonial.text && (
                     <blockquote className="text-gray-700 text-sm leading-relaxed mb-8 flex-1">
-                      "{testimonial.text}"
+                      &quot;{testimonial.text}&quot;
                     </blockquote>
                   )}
 
@@ -1152,7 +1153,7 @@ function FAQSection({ data }: { data: any }) {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <a
+              <Link
                 href="/contact"
                 className="inline-flex items-center px-6 py-3 rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-medium hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg"
               >
@@ -1170,7 +1171,7 @@ function FAQSection({ data }: { data: any }) {
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

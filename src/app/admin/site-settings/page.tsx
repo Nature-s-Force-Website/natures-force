@@ -372,7 +372,7 @@ export default function SiteSettingsPage() {
             Site Settings
           </h1>
           <p className="text-gray-600">
-            Manage your site's header, navigation, and footer content.
+            Manage your site&apos;s header, navigation, and footer content.
           </p>
         </div>
 

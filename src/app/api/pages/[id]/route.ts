@@ -3,11 +3,13 @@ import { createServerComponentClient } from '@/lib/supabase-server';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createServerComponentClient();
   
   try {
+    const { id } = await params
+    
     // Check if user is authenticated admin
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -16,10 +18,8 @@ export async function DELETE(
         { status: 401 }
       );
     }
-
-    const pageId = params.id;
-
-    // Check if the page exists and get its details
+    
+    const pageId = id;    // Check if the page exists and get its details
     const { data: page, error: fetchError } = await supabase
       .from('pages')
       .select('is_homepage, title, slug')

@@ -2,7 +2,7 @@
 export interface BaseComponentProps {
   id: string
   type: string
-  data: Record<string, any>
+  data: Record<string, unknown>
 }
 
 export interface ComponentDefinition {
@@ -12,7 +12,7 @@ export interface ComponentDefinition {
   category: 'hero' | 'content' | 'media' | 'social' | 'business' | 'interactive'
   icon: string
   preview: string
-  defaultData: Record<string, any>
+  defaultData: Record<string, unknown>
   fields: ComponentField[]
 }
 

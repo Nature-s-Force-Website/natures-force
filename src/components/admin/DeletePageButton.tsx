@@ -55,8 +55,8 @@ export default function DeletePageButton({
             Delete Page
           </h3>
           <p className="text-sm text-slate-600 mb-6">
-            Are you sure you want to delete "<strong>{pageTitle}</strong>"? This
-            action cannot be undone.
+            Are you sure you want to delete &quot;<strong>{pageTitle}</strong>
+            &quot;? This action cannot be undone.
           </p>
           <div className="flex justify-end space-x-3">
             <button
