@@ -48,6 +48,7 @@ export default function PageEditor({
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>(
     initialData?.content || []
   );
+  const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
 
   const form = useForm<PageFormData>({
     defaultValues: {
@@ -75,6 +76,29 @@ export default function PageEditor({
     };
 
     setContentBlocks([...contentBlocks, newBlock]);
+    // Auto-expand the newly added block
+    setExpandedBlocks((prev) => new Set([...prev, newBlock.id]));
+  };
+
+  const toggleBlockExpansion = (blockId: string) => {
+    setExpandedBlocks((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(blockId)) {
+        newSet.delete(blockId);
+      } else {
+        newSet.add(blockId);
+      }
+      return newSet;
+    });
+  };
+
+  const expandAllBlocks = () => {
+    const allIds = new Set(contentBlocks.map((block) => block.id));
+    setExpandedBlocks(allIds);
+  };
+
+  const collapseAllBlocks = () => {
+    setExpandedBlocks(new Set());
   };
 
   const updateBlockData = (blockId: string, fieldKey: string, value: any) => {
@@ -172,100 +196,174 @@ export default function PageEditor({
       );
     }
 
+    const isExpanded = expandedBlocks.has(block.id);
+
     return (
       <div
         key={block.id}
-        className="border border-gray-200 rounded-lg p-4 space-y-4"
+        className={`border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 ${
+          isExpanded ? "shadow-md" : "shadow-sm hover:shadow-md"
+        }`}
       >
-        {/* Component Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span className="text-2xl">{componentDef.icon}</span>
-            <div>
-              <h3 className="font-medium text-gray-900">{componentDef.name}</h3>
-              <p className="text-sm text-gray-500">
-                {componentDef.description}
-              </p>
+        {/* Component Header - Always visible */}
+        <div className="bg-gray-50 p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => toggleBlockExpansion(block.id)}
+                className="flex items-center space-x-3 text-left hover:bg-gray-100 rounded-lg p-2 -m-2 transition-colors"
+              >
+                <div className="flex items-center space-x-2">
+                  {/* Expand/Collapse icon */}
+                  <svg
+                    className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
+                      isExpanded ? "rotate-90" : ""
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                  <span className="text-2xl">{componentDef.icon}</span>
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">
+                    {componentDef.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {componentDef.description}
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              {/* Expand/Collapse button */}
+              <button
+                type="button"
+                onClick={() => toggleBlockExpansion(block.id)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                title={isExpanded ? "Collapse" : "Expand"}
+              >
+                <svg
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {/* Move buttons */}
+              <button
+                type="button"
+                onClick={() => moveBlock(block.id, "up")}
+                disabled={index === 0}
+                className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-30 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Move up"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 15l7-7 7 7"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => moveBlock(block.id, "down")}
+                disabled={index === contentBlocks.length - 1}
+                className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-30 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Move down"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              {/* Remove button */}
+              <button
+                type="button"
+                onClick={() => removeBlock(block.id)}
+                className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Delete component"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center space-x-2">
-            {/* Move buttons */}
-            <button
-              type="button"
-              onClick={() => moveBlock(block.id, "up")}
-              disabled={index === 0}
-              className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"
-            >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 15l7-7 7 7"
+        {/* Component Fields - Collapsible */}
+        {isExpanded && (
+          <div className="p-6 bg-white">
+            <div className="space-y-6">
+              {componentDef.fields.map((field) => (
+                <AdvancedFieldEditor
+                  key={field.key}
+                  field={field}
+                  value={block.data[field.key]}
+                  onChange={(value) =>
+                    updateBlockData(block.id, field.key, value)
+                  }
+                  path={`block_${index}_${field.key}`}
                 />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={() => moveBlock(block.id, "down")}
-              disabled={index === contentBlocks.length - 1}
-              className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"
-            >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-            {/* Remove button */}
-            <button
-              type="button"
-              onClick={() => removeBlock(block.id)}
-              className="p-1 text-red-400 hover:text-red-600"
-            >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-            </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Component Fields */}
-        <div className="space-y-6">
-          {componentDef.fields.map((field) => (
-            <AdvancedFieldEditor
-              key={field.key}
-              field={field}
-              value={block.data[field.key]}
-              onChange={(value) => updateBlockData(block.id, field.key, value)}
-              path={`block_${index}_${field.key}`}
-            />
-          ))}
-        </div>
+        {/* Collapsed state hint */}
+        {!isExpanded && (
+          <div className="p-3 bg-gray-25 text-center">
+            <p className="text-xs text-gray-500 italic">
+              Click to expand and edit component settings
+            </p>
+          </div>
+        )}
       </div>
     );
   };
@@ -376,13 +474,35 @@ export default function PageEditor({
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-medium text-gray-900">Page Content</h2>
-            <button
-              type="button"
-              onClick={() => setShowComponentSelector(true)}
-              className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-            >
-              Add Component
-            </button>
+            <div className="flex items-center space-x-3">
+              {/* Bulk controls */}
+              {contentBlocks.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={expandAllBlocks}
+                    className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg border border-blue-200 transition-colors"
+                  >
+                    Expand All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={collapseAllBlocks}
+                    className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg border border-gray-300 transition-colors"
+                  >
+                    Collapse All
+                  </button>
+                  <div className="w-px h-6 bg-gray-300"></div>
+                </>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowComponentSelector(true)}
+                className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                Add Component
+              </button>
+            </div>
           </div>
 
           {contentBlocks.length === 0 ? (

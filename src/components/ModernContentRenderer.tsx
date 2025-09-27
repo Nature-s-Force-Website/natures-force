@@ -1,8 +1,11 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getComponentDefinition } from "@/lib/component-types";
 import Image from "next/image";
 import Link from "next/link";
 import WhatWeOfferCard from "./site/WhatWeOfferCard";
+import ProcessSteps, { ProcessStepsData } from "./ProcessSteps";
 
 // Import types from the WhatWeOfferCard component
 interface WhatWeOfferItem {
@@ -74,6 +77,14 @@ export default function ModernContentRenderer({
       case "faq_section":
         return <FAQSection key={block.id} data={block.data} />;
 
+      case "process_steps":
+        // Ensure data has the required structure for ProcessSteps
+        const processStepsData: ProcessStepsData = {
+          ...block.data,
+          steps: Array.isArray(block.data.steps) ? block.data.steps : [],
+        };
+        return <ProcessSteps key={block.id} data={processStepsData} />;
+
       case "what_we_offer_card":
         return (
           <div key={block.id} className="py-16 bg-gray-50">
@@ -115,13 +126,14 @@ function HeroBanner({ data }: { data: ComponentData }) {
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
-      {(data.backgroundImage as string) &&
-        (data.backgroundImage as string).trim() !== "" && (
+      {typeof data.backgroundImage === "string" &&
+        data.backgroundImage.trim() !== "" && (
           <div className="absolute inset-0">
             <Image
               src={data.backgroundImage as string}
               alt="Hero background"
               fill
+              sizes="100vw"
               className="object-cover"
               priority
             />
@@ -348,7 +360,7 @@ function HeroSplit({ data }: { data: ComponentData }) {
           </div>
 
           {/* Image */}
-          {data.image && data.image.trim() !== "" && (
+          {typeof data.image === "string" && data.image.trim() !== "" && (
             <div
               className={`relative h-[500px] lg:h-[600px] animate-slide-up ${
                 imageOnRight ? "" : "lg:col-start-1"
@@ -360,6 +372,7 @@ function HeroSplit({ data }: { data: ComponentData }) {
                   src={data.image}
                   alt={data.title || "Hero image"}
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover rounded-2xl shadow-2xl"
                 />
                 {/* Floating elements */}
@@ -432,7 +445,8 @@ function FeatureGrid({ data }: { data: ComponentData }) {
 
                   {/* Icon Container */}
                   <div className="relative mb-8">
-                    {feature.image && feature.image.trim() !== "" ? (
+                    {typeof feature.image === "string" &&
+                    feature.image.trim() !== "" ? (
                       <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 flex items-center justify-center overflow-hidden group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                         <Image
                           src={feature.image}
@@ -598,12 +612,14 @@ function Testimonials({ data }: { data: ComponentData }) {
 
                   {/* Client info */}
                   <div className="flex items-center pt-6 border-t border-gray-100">
-                    {testimonial.image && testimonial.image.trim() !== "" ? (
+                    {typeof testimonial.image === "string" &&
+                    testimonial.image.trim() !== "" ? (
                       <div className="relative h-12 w-12 mr-4 group-hover:scale-105 transition-transform duration-300">
                         <Image
                           src={testimonial.image}
                           alt={testimonial.name || "Client photo"}
                           fill
+                          sizes="48px"
                           className="object-cover rounded-full"
                         />
                       </div>
@@ -712,8 +728,15 @@ function ImageGallery({ data }: { data: ComponentData }) {
       4: "grid-cols-2 md:grid-cols-4",
     }[columns] || "grid-cols-1 md:grid-cols-3";
 
+  // Debug logging
+  console.log("ImageGallery data:", data);
+  console.log("Images array:", data.images);
+
   return (
-    <div className="py-16 bg-white">
+    <div
+      className="py-16"
+      style={{ backgroundColor: data.backgroundColor || "#ffffff" }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           {data.title && (
@@ -724,23 +747,59 @@ function ImageGallery({ data }: { data: ComponentData }) {
           {data.subtitle && (
             <p className="text-xl text-gray-600">{data.subtitle}</p>
           )}
+          {data.description && (
+            <p className="text-lg text-gray-500 mt-4">{data.description}</p>
+          )}
         </div>
 
-        {data.images && data.images.length > 0 && (
+        {data.images && data.images.length > 0 ? (
           <div className={`grid ${gridCols} gap-4`}>
             {data.images.map((image: any, index: number) => {
-              const imgSrc = image.url || image;
-              return imgSrc && imgSrc.trim() !== "" ? (
-                <div key={index} className="relative aspect-square">
+              // Handle different possible image URL structures
+              const imgSrc = image?.src || image?.url || image;
+              const isValidImageSrc =
+                typeof imgSrc === "string" && imgSrc.trim() !== "";
+
+              console.log(`Image ${index}:`, {
+                image,
+                imgSrc,
+                isValidImageSrc,
+              });
+
+              if (!isValidImageSrc) return null;
+
+              return (
+                <div
+                  key={index}
+                  className="relative aspect-square group bg-gray-100 rounded-lg overflow-hidden"
+                >
                   <Image
                     src={imgSrc}
-                    alt={image.alt || `Gallery image ${index + 1}`}
+                    alt={image?.alt || `Gallery image ${index + 1}`}
                     fill
-                    className="object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                    className="object-cover hover:scale-105 transition-transform cursor-pointer"
+                    unoptimized
                   />
+                  {/* Optional overlay with title */}
+                  {image?.title && (
+                    <div className="absolute inset-0  group-hover:bg-opacity-50 transition-opacity flex items-end">
+                      <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                        <h3 className="font-semibold">{image.title}</h3>
+                        {image.description && (
+                          <p className="text-sm">{image.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              ) : null;
+              );
             })}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-6xl mb-4">🖼️</div>
+            <p className="text-gray-500">No images added to gallery yet</p>
           </div>
         )}
       </div>
@@ -767,16 +826,18 @@ function TeamProfiles({ data }: { data: ComponentData }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {data.members.map((member: any, index: number) => (
               <div key={index} className="text-center">
-                {member.image && member.image.trim() !== "" && (
-                  <div className="relative h-48 w-48 mx-auto mb-4">
-                    <Image
-                      src={member.image}
-                      alt={member.name || "Team member"}
-                      fill
-                      className="object-cover rounded-full"
-                    />
-                  </div>
-                )}
+                {typeof member.image === "string" &&
+                  member.image.trim() !== "" && (
+                    <div className="relative h-48 w-48 mx-auto mb-4">
+                      <Image
+                        src={member.image}
+                        alt={member.name || "Team member"}
+                        fill
+                        sizes="192px"
+                        className="object-cover rounded-full"
+                      />
+                    </div>
+                  )}
 
                 {member.name && (
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -824,232 +885,256 @@ function TeamProfiles({ data }: { data: ComponentData }) {
 function ContactSection({ data }: { data: ComponentData }) {
   const getSocialIcon = (iconType: string) => {
     const icons = {
-      linkedin: "💼",
-      facebook: "👥",
-      twitter: "🐦",
-      instagram: "📸",
-      youtube: "📺",
+      linkedin: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z" />
+        </svg>
+      ),
+      facebook: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669z" />
+        </svg>
+      ),
+      twitter: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184" />
+        </svg>
+      ),
+      instagram: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849z" />
+        </svg>
+      ),
+      youtube: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505" />
+        </svg>
+      ),
     };
-    return icons[iconType as keyof typeof icons] || "🔗";
+    return (
+      icons[iconType as keyof typeof icons] || (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+      )
+    );
   };
 
-  const layoutClass =
-    data.layout === "stacked"
-      ? "space-y-12"
-      : data.layout === "form-only"
-      ? "flex justify-center"
-      : "grid grid-cols-1 lg:grid-cols-2 gap-12";
-
   return (
-    <div
-      className="py-16"
-      style={{ backgroundColor: data.backgroundColor || "#f9fafb" }}
+    <section
+      className="py-12 lg:py-16"
+      style={{ backgroundColor: data.backgroundColor || "#f8f9fa" }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          {data.title && (
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {data.title}
-            </h2>
-          )}
-          {data.subtitle && (
-            <p className="text-xl text-teal-600 mb-4 font-semibold">
-              {data.subtitle}
-            </p>
-          )}
-          {data.description && (
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              {data.description}
-            </p>
-          )}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        {data.title && (
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">{data.title}</h2>
+          </div>
+        )}
+
+        {/* Contact Information - Horizontal Flex Layout */}
+        <div className="mb-12">
+          <div className="flex flex-col md:flex-row gap-8 justify-center text-center">
+            {/* Phone */}
+            {data.contactInfo?.phone && (
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mb-3">
+                  <svg
+                    className="w-6 h-6 text-teal-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
+                  </svg>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-gray-900 font-medium">
+                    {data.contactInfo.phone}
+                  </p>
+                  <p className="text-gray-600 text-sm">+62 345 789 000</p>
+                </div>
+              </div>
+            )}
+
+            {/* Email */}
+            {data.contactInfo?.email && (
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mb-3">
+                  <svg
+                    className="w-6 h-6 text-teal-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div className="space-y-1">
+                  <a
+                    href={`mailto:${data.contactInfo.email}`}
+                    className="text-gray-900 font-medium hover:text-teal-600 transition-colors"
+                  >
+                    inquiry@nataraxis.ai
+                  </a>
+                  <p className="text-gray-600 text-sm">help@nataraxis.ai</p>
+                </div>
+              </div>
+            )}
+
+            {/* Address */}
+            {data.contactInfo?.address && (
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mb-3">
+                  <svg
+                    className="w-6 h-6 text-teal-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-gray-900 font-medium">
+                    221b Elementary Street
+                  </p>
+                  <p className="text-gray-600 text-sm">New York, NY</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className={layoutClass}>
-          {/* Contact Info Section */}
-          {data.layout !== "form-only" && (
-            <div className="bg-white rounded-xl shadow-lg p-8 space-y-6">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Contact Information
-              </h3>
-
-              {/* Contact Details */}
-              <div className="space-y-4">
-                {data.contactInfo?.phone && (
-                  <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-teal-50 transition-colors">
-                    <div className="text-teal-600 text-xl mt-1">📞</div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Phone</div>
-                      <a
-                        href={`tel:${data.contactInfo.phone}`}
-                        className="text-gray-600 hover:text-teal-600 transition-colors"
-                      >
-                        {data.contactInfo.phone}
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {data.contactInfo?.email && (
-                  <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-teal-50 transition-colors">
-                    <div className="text-teal-600 text-xl mt-1">📧</div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Email</div>
-                      <a
-                        href={`mailto:${data.contactInfo.email}`}
-                        className="text-gray-600 hover:text-teal-600 transition-colors"
-                      >
-                        {data.contactInfo.email}
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {data.contactInfo?.address && (
-                  <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-teal-50 transition-colors">
-                    <div className="text-teal-600 text-xl mt-1">📍</div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Address</div>
-                      <div className="text-gray-600 whitespace-pre-line">
-                        {data.contactInfo.address}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {data.contactInfo?.hours && (
-                  <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-teal-50 transition-colors">
-                    <div className="text-teal-600 text-xl mt-1">🕒</div>
-                    <div>
-                      <div className="font-semibold text-gray-900">
-                        Business Hours
-                      </div>
-                      <div className="text-gray-600">
-                        {data.contactInfo.hours}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {data.contactInfo?.website && (
-                  <div className="flex items-start space-x-4 p-3 rounded-lg hover:bg-teal-50 transition-colors">
-                    <div className="text-teal-600 text-xl mt-1">🌐</div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Website</div>
-                      <a
-                        href={
-                          data.contactInfo.website.startsWith("http")
-                            ? data.contactInfo.website
-                            : `https://${data.contactInfo.website}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-600 hover:text-teal-600 transition-colors"
-                      >
-                        {data.contactInfo.website}
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Social Links */}
-              {data.socialLinks && data.socialLinks.length > 0 && (
-                <div className="border-t pt-6">
-                  <h4 className="font-semibold text-gray-900 mb-4">
-                    Follow Us
-                  </h4>
-                  <div className="flex space-x-4">
-                    {data.socialLinks.map(
-                      (social: any, index: number) =>
-                        social.url && (
-                          <a
-                            key={index}
-                            href={social.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center space-x-2 px-4 py-2 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors text-teal-700 hover:text-teal-800"
-                          >
-                            <span className="text-lg">
-                              {getSocialIcon(social.icon)}
-                            </span>
-                            <span className="font-medium">
-                              {social.platform}
-                            </span>
-                          </a>
-                        )
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Map Integration */}
-              {data.showMap && data.mapAddress && (
-                <div className="border-t pt-6">
-                  <h4 className="font-semibold text-gray-900 mb-4">Location</h4>
-                  <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <div className="text-4xl mb-2">🗺️</div>
-                      <p className="font-medium">Interactive Map</p>
-                      <p className="text-sm">{data.mapAddress}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Contact Form */}
-          {data.showContactForm && (
-            <div
-              className={`bg-white rounded-xl shadow-lg p-8 ${
-                data.layout === "form-only" ? "max-w-2xl" : ""
-              }`}
-            >
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Send us a Message
+        {/* Contact Form */}
+        {data.showContactForm && (
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white rounded-lg border border-gray-200 p-8">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-6">
+                Or Leave Us a Message
               </h3>
 
               <form className="space-y-6">
-                {data.formFields?.map((field: any, index: number) => (
-                  <div key={index}>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      {field.label}
-                      {field.required && (
-                        <span className="text-red-500 ml-1">*</span>
-                      )}
+                {/* 2x2 Grid Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Row 1 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Full Name
                     </label>
-
-                    {field.type === "textarea" ? (
-                      <textarea
-                        rows={4}
-                        required={field.required}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
-                        placeholder={`Enter your ${field.label.toLowerCase()}`}
-                      />
-                    ) : (
-                      <input
-                        type={field.type}
-                        required={field.required}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder={`Enter your ${field.label.toLowerCase()}`}
-                      />
-                    )}
+                    <input
+                      type="text"
+                      placeholder="Enter your full name..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors placeholder-gray-500 text-gray-900"
+                    />
                   </div>
-                ))}
 
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  Send Message
-                </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="Enter your email address..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors placeholder-gray-500 text-gray-900"
+                    />
+                  </div>
+
+                  {/* Row 3 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Organization
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your organization..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors placeholder-gray-500 text-gray-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="Enter your phone number..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors placeholder-gray-500 text-gray-900"
+                    />
+                  </div>
+                </div>
+
+                {/* Message Field - Full Width */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    rows={5}
+                    placeholder="Enter your message here..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors resize-none placeholder-gray-500 text-gray-900"
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <div className="flex justify-center">
+                  <button
+                    type="submit"
+                    className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200 min-w-[200px]"
+                  >
+                    Submit Form →
+                  </button>
+                </div>
               </form>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Social Links */}
+        {data.socialLinks && data.socialLinks.length > 0 && (
+          <div className="mt-12 text-center">
+            <div className="flex justify-center gap-4">
+              {data.socialLinks.map(
+                (social: any, index: number) =>
+                  social.url && (
+                    <a
+                      key={index}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-gray-100 hover:bg-teal-100 rounded-full flex items-center justify-center text-gray-600 hover:text-teal-600 transition-colors duration-200"
+                    >
+                      {getSocialIcon(social.icon)}
+                    </a>
+                  )
+              )}
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </section>
   );
 }
 

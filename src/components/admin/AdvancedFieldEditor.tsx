@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { ComponentField } from "@/lib/component-types";
+import MediaSelector from "./MediaSelector";
 
 interface AdvancedFieldEditorProps {
   field: ComponentField;
@@ -17,6 +18,8 @@ export default function AdvancedFieldEditor({
   onChange,
   path = "",
 }: AdvancedFieldEditorProps) {
+  const [showMediaSelector, setShowMediaSelector] = useState(false);
+  const [currentImageField, setCurrentImageField] = useState<string>("");
   const fieldId = `${path}_${field.key}`.replace(/[^a-zA-Z0-9]/g, "_");
 
   const handleBasicFieldChange = (newValue: any) => {
@@ -26,6 +29,19 @@ export default function AdvancedFieldEditor({
   const handleArrayChange = (index: number, newValue: any) => {
     const newArray = [...(value || [])];
     newArray[index] = newValue;
+    onChange(newArray);
+  };
+
+  const handleArrayImageSelect = (
+    arrayIndex: number,
+    fieldKey: string,
+    imageUrl: string
+  ) => {
+    const newArray = [...(value || [])];
+    newArray[arrayIndex] = {
+      ...newArray[arrayIndex],
+      [fieldKey]: imageUrl,
+    };
     onChange(newArray);
   };
 
@@ -170,16 +186,28 @@ export default function AdvancedFieldEditor({
       case "image":
         return (
           <div className="space-y-3">
-            <input
-              id={fieldId}
-              type="url"
-              value={value || ""}
-              onChange={(e) => handleBasicFieldChange(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white transition-all duration-200 hover:border-gray-300"
-              required={field.required}
-            />
-            {value && value.trim() !== "" && (
+            <div className="flex gap-2">
+              <input
+                id={fieldId}
+                type="url"
+                value={value || ""}
+                onChange={(e) => handleBasicFieldChange(e.target.value)}
+                placeholder="https://example.com/image.jpg or click Browse"
+                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white transition-all duration-200 hover:border-gray-300"
+                required={field.required}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentImageField(fieldId);
+                  setShowMediaSelector(true);
+                }}
+                className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium whitespace-nowrap"
+              >
+                Browse Media
+              </button>
+            </div>
+            {typeof value === "string" && value.trim() !== "" && (
               <div className="mt-3">
                 <img
                   src={value}
@@ -221,25 +249,75 @@ export default function AdvancedFieldEditor({
             {field.required && <span className="text-red-500">*</span>}
           </label>
           {canAdd && (
-            <button
-              onClick={handleArrayAdd}
-              className="inline-flex items-center px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-xl hover:bg-teal-700 transition-colors duration-200 shadow-sm hover:shadow-md"
-            >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex gap-2">
+              <button
+                onClick={handleArrayAdd}
+                className="inline-flex items-center px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-xl hover:bg-teal-700 transition-colors duration-200 shadow-sm hover:shadow-md"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-              Add {field.label.slice(0, -1)}
-            </button>
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+                Add {field.label.slice(0, -1)}
+              </button>
+
+              {/* Quick add image button for image arrays */}
+              {field.arrayFields?.some((f) => f.type === "image") && (
+                <button
+                  onClick={() => {
+                    // Create new item with empty fields
+                    const newItem = field.arrayFields!.reduce(
+                      (acc, arrayField) => {
+                        acc[arrayField.key] =
+                          arrayField.type === "boolean" ? false : "";
+                        return acc;
+                      },
+                      {} as any
+                    );
+
+                    // Add the new item
+                    const newArray = [...(value || [])];
+                    const newIndex = newArray.length;
+                    newArray.push(newItem);
+                    onChange(newArray);
+
+                    // Immediately open media selector for the image field
+                    const imageField = field.arrayFields!.find(
+                      (f) => f.type === "image"
+                    );
+                    if (imageField) {
+                      setCurrentImageField(`${newIndex}_${imageField.key}`);
+                      setShowMediaSelector(true);
+                    }
+                  }}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors duration-200 shadow-sm hover:shadow-md"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Add from Media
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -286,19 +364,75 @@ export default function AdvancedFieldEditor({
               </div>
 
               <div className="space-y-3">
-                {field.arrayFields?.map((arrayField) => (
-                  <AdvancedFieldEditor
-                    key={arrayField.key}
-                    field={arrayField}
-                    value={item[arrayField.key]}
-                    onChange={(newValue) => {
-                      const newItem = { ...item };
-                      newItem[arrayField.key] = newValue;
-                      handleArrayChange(index, newItem);
-                    }}
-                    path={`${path}_${field.key}_${index}`}
-                  />
-                ))}
+                {field.arrayFields?.map((arrayField) => {
+                  // Special handling for image fields in arrays
+                  if (arrayField.type === "image") {
+                    return (
+                      <div key={arrayField.key} className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {arrayField.label}{" "}
+                          {arrayField.required && (
+                            <span className="text-red-500">*</span>
+                          )}
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            value={item[arrayField.key] || ""}
+                            onChange={(e) => {
+                              const newItem = { ...item };
+                              newItem[arrayField.key] = e.target.value;
+                              handleArrayChange(index, newItem);
+                            }}
+                            placeholder="Image URL or click Browse"
+                            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white transition-all duration-200 hover:border-gray-300"
+                            required={arrayField.required}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCurrentImageField(
+                                `${index}_${arrayField.key}`
+                              );
+                              setShowMediaSelector(true);
+                            }}
+                            className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium whitespace-nowrap"
+                          >
+                            Browse
+                          </button>
+                        </div>
+                        {item[arrayField.key] && (
+                          <div className="mt-2">
+                            <img
+                              src={item[arrayField.key]}
+                              alt="Preview"
+                              className="max-w-xs max-h-24 object-cover rounded-lg border-2 border-gray-100 shadow-sm"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = "none";
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Default field rendering for non-image fields
+                  return (
+                    <AdvancedFieldEditor
+                      key={arrayField.key}
+                      field={arrayField}
+                      value={item[arrayField.key]}
+                      onChange={(newValue) => {
+                        const newItem = { ...item };
+                        newItem[arrayField.key] = newValue;
+                        handleArrayChange(index, newItem);
+                      }}
+                      path={`${path}_${field.key}_${index}`}
+                    />
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -309,6 +443,32 @@ export default function AdvancedFieldEditor({
             No {field.label.toLowerCase()} added yet. Click the &quot;Add&quot;
             button above to create your first one.
           </div>
+        )}
+
+        {/* Media Selector Modal for Array Fields */}
+        {showMediaSelector && (
+          <MediaSelector
+            onSelect={(imageUrl: string) => {
+              // Check if this is an array field selection
+              if (currentImageField.includes("_")) {
+                const parts = currentImageField.split("_");
+                const arrayIndex = parseInt(parts[0]);
+                const fieldKey = parts[1];
+                if (!isNaN(arrayIndex)) {
+                  handleArrayImageSelect(arrayIndex, fieldKey, imageUrl);
+                }
+              } else {
+                // Regular field selection
+                handleBasicFieldChange(imageUrl);
+              }
+              setShowMediaSelector(false);
+              setCurrentImageField("");
+            }}
+            onClose={() => {
+              setShowMediaSelector(false);
+              setCurrentImageField("");
+            }}
+          />
         )}
       </div>
     );
@@ -353,22 +513,51 @@ export default function AdvancedFieldEditor({
 
   // For basic fields
   return (
-    <div className="space-y-2">
-      {field.type !== "boolean" && (
-        <label
-          htmlFor={fieldId}
-          className="block text-sm font-medium text-gray-700"
-        >
-          {field.label}{" "}
-          {field.required && <span className="text-red-500">*</span>}
-        </label>
-      )}
+    <>
+      <div className="space-y-2">
+        {field.type !== "boolean" && (
+          <label
+            htmlFor={fieldId}
+            className="block text-sm font-medium text-gray-700"
+          >
+            {field.label}{" "}
+            {field.required && <span className="text-red-500">*</span>}
+          </label>
+        )}
 
-      {field.description && field.type !== "boolean" && (
-        <p className="text-sm text-gray-600">{field.description}</p>
-      )}
+        {field.description && field.type !== "boolean" && (
+          <p className="text-sm text-gray-600">{field.description}</p>
+        )}
 
-      {renderBasicField()}
-    </div>
+        {renderBasicField()}
+      </div>
+
+      {/* Media Selector Modal */}
+      {showMediaSelector && (
+        <MediaSelector
+          onSelect={(imageUrl: string) => {
+            // Check if this is an array field selection
+            if (currentImageField.includes("_")) {
+              const parts = currentImageField.split("_");
+              const arrayIndex = parseInt(parts[0]);
+              const fieldKey = parts[1];
+              if (!isNaN(arrayIndex)) {
+                handleArrayImageSelect(arrayIndex, fieldKey, imageUrl);
+              }
+            } else {
+              // Regular field selection
+              handleBasicFieldChange(imageUrl);
+            }
+            setShowMediaSelector(false);
+            setCurrentImageField("");
+          }}
+          onClose={() => {
+            setShowMediaSelector(false);
+            setCurrentImageField("");
+          }}
+          currentUrl={value}
+        />
+      )}
+    </>
   );
 }

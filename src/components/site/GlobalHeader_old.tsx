@@ -97,7 +97,7 @@ export default function GlobalHeader({ data }: GlobalHeaderProps) {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               {headerData.logo &&
-                headerData.logo.src &&
+                typeof headerData.logo.src === "string" &&
                 headerData.logo.src.trim() !== "" && (
                   <Image
                     src={headerData.logo.src}

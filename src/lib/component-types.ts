@@ -743,6 +743,98 @@ export const COMPONENT_TYPES: ComponentDefinition[] = [
         ]
       }
     ]
+  },
+
+  {
+    type: 'process_steps',
+    name: 'Process Steps',
+    description: 'Display step-by-step process workflow with icons and descriptions',
+    category: 'content',
+    icon: '🔄',
+    preview: '/previews/process-steps.jpg',
+    defaultData: {
+      title: 'How It Works',
+      subtitle: 'Simple Process Steps',
+      description: 'Brief process steps so prospective clients know what to expect:',
+      backgroundColor: '#f8f9fa',
+      layout: 'vertical', // vertical, horizontal, grid
+      showNumbers: true,
+      showIcons: true,
+      steps: [
+        {
+          id: 1,
+          title: 'Contact & Consultation',
+          description: 'You share your product formula or brief; we discuss packaging wants, volumes, options.',
+          icon: 'consultation'
+        },
+        {
+          id: 2,
+          title: 'Quote & Sample',
+          description: 'We provide a detailed quote + mock-up or sample packaging (if needed).',
+          icon: 'quote'
+        },
+        {
+          id: 3,
+          title: 'Production & QC',
+          description: 'Ingredient sourcing, blending, filling, labelling, all under our quality protocols.',
+          icon: 'production'
+        },
+        {
+          id: 4,
+          title: 'Delivery / Dispatch',
+          description: 'Finished products packaged, labelled, and shipped to you.',
+          icon: 'delivery'
+        },
+        {
+          id: 5,
+          title: 'Ongoing Support',
+          description: 'We assist with reorders, packaging adjustments, compliance, and scaling.',
+          icon: 'support'
+        }
+      ]
+    },
+    fields: [
+      { key: 'title', label: 'Section Title', type: 'text', required: true },
+      { key: 'subtitle', label: 'Section Subtitle', type: 'text' },
+      { key: 'description', label: 'Section Description', type: 'textarea' },
+      { key: 'backgroundColor', label: 'Background Color', type: 'color' },
+      { 
+        key: 'layout', 
+        label: 'Layout Style', 
+        type: 'select',
+        options: [
+          { label: 'Vertical (Default)', value: 'vertical' },
+          { label: 'Horizontal Row', value: 'horizontal' },
+          { label: 'Grid Layout', value: 'grid' }
+        ]
+      },
+      { key: 'showNumbers', label: 'Show Step Numbers', type: 'boolean' },
+      { key: 'showIcons', label: 'Show Step Icons', type: 'boolean' },
+      {
+        key: 'steps',
+        label: 'Process Steps',
+        type: 'array',
+        min: 2,
+        max: 10,
+        arrayFields: [
+          { key: 'title', label: 'Step Title', type: 'text', required: true },
+          { key: 'description', label: 'Step Description', type: 'textarea', required: true },
+          { 
+            key: 'icon', 
+            label: 'Step Icon', 
+            type: 'select',
+            options: [
+              { label: 'Consultation', value: 'consultation' },
+              { label: 'Quote/Document', value: 'quote' },
+              { label: 'Production/Lab', value: 'production' },
+              { label: 'Delivery/Ship', value: 'delivery' },
+              { label: 'Support/Service', value: 'support' },
+              { label: 'Default (Number)', value: 'default' }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
 

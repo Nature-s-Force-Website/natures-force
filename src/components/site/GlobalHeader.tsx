@@ -115,7 +115,7 @@ export default function GlobalHeader({ data }: GlobalHeaderProps) {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               {headerData.logo &&
-              headerData.logo.src &&
+              typeof headerData.logo.src === "string" &&
               headerData.logo.src.trim() !== "" ? (
                 <Image
                   src={headerData.logo.src}
@@ -190,7 +190,7 @@ export default function GlobalHeader({ data }: GlobalHeaderProps) {
           {headerData.cta && (
             <Link
               href={headerData.cta.href}
-              className={`ml-6 px-6 py-3 rounded-xl text-base font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${
+              className={`hidden md:block ml-6 px-6 py-3 rounded-xl text-base font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${
                 headerData.cta.style === "primary"
                   ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:from-teal-700 hover:to-emerald-700 shadow-md"
                   : "border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
@@ -282,20 +282,6 @@ export default function GlobalHeader({ data }: GlobalHeaderProps) {
                 </div>
               );
             })}
-
-            {headerData.cta && (
-              <Link
-                href={headerData.cta.href}
-                className={`block mt-6 mx-4 px-6 py-4 rounded-xl text-lg font-semibold text-center transition-all duration-300 transform hover:scale-105 ${
-                  headerData.cta.style === "primary"
-                    ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:from-teal-700 hover:to-emerald-700 shadow-lg"
-                    : "border-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {headerData.cta.label}
-              </Link>
-            )}
           </div>
         </div>
       </nav>

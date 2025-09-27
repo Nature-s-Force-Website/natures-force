@@ -33,6 +33,20 @@ export default function MediaLibrary({
   const [error, setError] = useState("");
   const [showUpload, setShowUpload] = useState(false);
 
+  // Helper function to detect image files by extension
+  const isImageFile = (filename: string) => {
+    const imageExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".bmp",
+      ".webp",
+      ".svg",
+    ];
+    return imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
+  };
+
   useEffect(() => {
     fetchMedia();
   }, []);
@@ -45,8 +59,11 @@ export default function MediaLibrary({
       }
 
       const result = await response.json();
-      setMedia(result.media || []);
+      const mediaList = result.media || [];
+      console.log("Fetched media:", mediaList); // Debug log
+      setMedia(mediaList);
     } catch (err: any) {
+      console.error("Error fetching media:", err);
       setError(err.message || "Failed to load media");
       console.error("Media fetch error:", err);
     } finally {
@@ -197,14 +214,47 @@ export default function MediaLibrary({
             >
               {/* Image */}
               <div className="aspect-square relative bg-gray-100">
-                {mediaAsset.mime_type &&
-                mediaAsset.mime_type.startsWith("image/") ? (
+                {/* Debug info - remove after testing */}
+                {/* <div className="absolute top-0 left-0 bg-black bg-opacity-75 text-white text-xs p-1 z-10">
+                  {mediaAsset.mime_type || 'no-mime'}
+                </div> */}
+
+                {(mediaAsset.mime_type &&
+                  mediaAsset.mime_type.startsWith("image/")) ||
+                (!mediaAsset.mime_type && isImageFile(mediaAsset.filename)) ? (
                   <Image
                     src={mediaAsset.file_path}
                     alt={mediaAsset.filename}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 16vw"
+                    unoptimized
+                    onError={(e) => {
+                      console.error(
+                        "Failed to load image:",
+                        mediaAsset.file_path,
+                        "MIME:",
+                        mediaAsset.mime_type
+                      );
+                      // Hide the image and show fallback
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      const parent = target.parentElement;
+                      if (parent) {
+                        const fallback = parent.querySelector(
+                          ".image-fallback"
+                        ) as HTMLElement;
+                        if (fallback) {
+                          fallback.style.display = "flex";
+                        }
+                      }
+                    }}
+                    onLoad={() => {
+                      console.log(
+                        "Successfully loaded image:",
+                        mediaAsset.filename
+                      );
+                    }}
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
@@ -223,6 +273,26 @@ export default function MediaLibrary({
                     </svg>
                   </div>
                 )}
+
+                {/* Fallback for failed image loads */}
+                <div className="image-fallback hidden items-center justify-center h-full absolute inset-0 bg-gray-100">
+                  <div className="text-center">
+                    <svg
+                      className="h-8 w-8 text-gray-400 mx-auto mb-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <p className="text-xs text-gray-500">Image</p>
+                  </div>
+                </div>
 
                 {/* Selected indicator */}
                 {isSelected(mediaAsset) && mode === "select" && (
