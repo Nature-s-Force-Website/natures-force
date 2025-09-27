@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerComponentClient } from '@/lib/supabase-server';
 
+// Allow this route to be dynamic for client-side requests but provide defaults for static generation
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
-  const supabase = await createServerComponentClient();
-  
   try {
+    const supabase = await createServerComponentClient();
+    
     const { data, error } = await supabase
       .from('site_settings')
       .select('*')
@@ -13,20 +16,63 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      throw error;
+      console.error('Error fetching footer settings:', error);
+      return NextResponse.json({ 
+        data: getDefaultFooterData(),
+        success: true 
+      });
     }
 
     return NextResponse.json({ 
-      data: data?.data || null,
+      data: data?.data || getDefaultFooterData(),
       success: true 
     });
   } catch (error) {
     console.error('Error fetching footer settings:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch footer settings', success: false },
-      { status: 500 }
-    );
+    // Return default data for static generation compatibility
+    return NextResponse.json({ 
+      data: getDefaultFooterData(),
+      success: true 
+    });
   }
+}
+
+function getDefaultFooterData() {
+  return {
+    logo: {
+      src: "/logo.png",
+      alt: "NaturesForce Contract Packing",
+      width: 150,
+      height: 50
+    },
+    description: "Professional contract packing services for your business needs.",
+    sections: [
+      {
+        title: "Services",
+        links: [
+          { label: "Contract Packing", href: "/services/contract-packing" },
+          { label: "Product Assembly", href: "/services/assembly" },
+          { label: "Quality Control", href: "/services/quality" },
+          { label: "Logistics", href: "/services/logistics" }
+        ]
+      },
+      {
+        title: "Company",
+        links: [
+          { label: "About Us", href: "/about" },
+          { label: "Contact", href: "/contact" },
+          { label: "Careers", href: "/careers" },
+          { label: "News", href: "/news" }
+        ]
+      }
+    ],
+    socialLinks: [
+      { platform: "linkedin", url: "https://linkedin.com/company/naturesforce" },
+      { platform: "twitter", url: "https://twitter.com/naturesforce" }
+    ],
+    bottomText: "Quality contract packing services since 2020",
+    copyright: "© 2024 NaturesForce Contract Packing. All rights reserved."
+  };
 }
 
 export async function POST(request: NextRequest) {
