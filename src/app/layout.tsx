@@ -44,6 +44,11 @@ export async function generateMetadata(): Promise<Metadata> {
         ? [{ name: metadata.site_author }]
         : [{ name: "Nature's Force" }],
       robots: "index, follow",
+      icons: {
+        icon: metadata.favicon_url || "/favicon.ico",
+        shortcut: metadata.favicon_url || "/favicon.ico",
+        apple: metadata.favicon_url || "/favicon.ico",
+      },
       openGraph: {
         title:
           metadata.og_title ||
@@ -75,6 +80,11 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "Nature's Force Packaging",
       description:
         "Premium eco-friendly packaging solutions for your business needs",
+      icons: {
+        icon: "/favicon.ico",
+        shortcut: "/favicon.ico",
+        apple: "/favicon.ico",
+      },
     };
   }
 }

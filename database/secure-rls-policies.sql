@@ -9,6 +9,8 @@ DROP POLICY IF EXISTS "Admins can manage pages" ON pages;
 DROP POLICY IF EXISTS "Public can view published pages" ON pages;
 DROP POLICY IF EXISTS "Admins can manage media" ON media_assets;
 DROP POLICY IF EXISTS "Public can view media" ON media_assets;
+DROP POLICY IF EXISTS "Public can read site_settings" ON site_settings;
+DROP POLICY IF EXISTS "Admins can manage site_settings" ON site_settings;
 
 -- =====================================================
 -- 1. ADMIN_USERS TABLE - SECURE POLICIES
@@ -157,6 +159,52 @@ CREATE POLICY "admins_can_delete_media" ON media_assets
 -- WHERE tablename IN ('admin_users', 'pages', 'media_assets');
 
 -- =====================================================
+-- 4. SITE_SETTINGS TABLE - SECURE POLICIES
+-- =====================================================
+
+-- Clean up any existing site_settings policies
+DROP POLICY IF EXISTS "Public can read site_settings" ON site_settings;
+DROP POLICY IF EXISTS "Admins can manage site_settings" ON site_settings;
+
+-- Enable RLS on site_settings
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+
+-- Policy 1: Everyone can read site_settings (needed for header/footer/metadata)
+CREATE POLICY "public_can_read_site_settings" ON site_settings
+    FOR SELECT TO anon, authenticated
+    USING (true);
+
+-- Policy 2: Only active admins can insert site_settings
+CREATE POLICY "admins_can_insert_site_settings" ON site_settings
+    FOR INSERT TO authenticated
+    WITH CHECK (
+        auth.uid() IN (SELECT id FROM admin_users WHERE is_active = true)
+    );
+
+-- Policy 3: Only active admins can update site_settings
+CREATE POLICY "admins_can_update_site_settings" ON site_settings
+    FOR UPDATE TO authenticated
+    USING (
+        auth.uid() IN (SELECT id FROM admin_users WHERE is_active = true)
+    )
+    WITH CHECK (
+        auth.uid() IN (SELECT id FROM admin_users WHERE is_active = true)
+    );
+
+-- Policy 4: Only active admins can delete site_settings
+CREATE POLICY "admins_can_delete_site_settings" ON site_settings
+    FOR DELETE TO authenticated
+    USING (
+        auth.uid() IN (SELECT id FROM admin_users WHERE is_active = true)
+    );
+
+-- Policy 5: Service role can do everything (for migrations and manual operations)
+CREATE POLICY "service_role_full_access_site_settings" ON site_settings
+    FOR ALL TO service_role
+    USING (true)
+    WITH CHECK (true);
+
+-- =====================================================
 -- 5. PRODUCTION NOTES
 -- =====================================================
 
@@ -165,6 +213,7 @@ SECURITY FEATURES:
 ✅ admin_users: Only admins can modify, authenticated can read (for auth checks)
 ✅ pages: Public can read published, only admins can modify
 ✅ media_assets: Public can read (for images), only admins can modify
+✅ site_settings: Public can read (for header/footer), only admins can modify
 ✅ Service role access preserved for manual operations
 ✅ No circular dependency issues
 
@@ -172,11 +221,13 @@ WHAT THIS PREVENTS:
 🛡️ Unauthorized users cannot create admin accounts
 🛡️ Non-admins cannot modify pages or media
 🛡️ Anonymous users cannot access draft content
+🛡️ Non-admins cannot modify site settings
 🛡️ API access is properly restricted
 
 WHAT STILL WORKS:
 ✅ Your admin login and auth checks
 ✅ Public website displays published content
+✅ Header, footer, and metadata loading
 ✅ Admin panel functionality
 ✅ Manual admin user creation via service role
 */
