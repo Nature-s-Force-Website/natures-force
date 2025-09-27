@@ -1,7 +1,6 @@
 import { checkAdminAuth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import MediaLibrary from "@/components/admin/MediaLibrary";
-import AdminNavigation from "@/components/admin/AdminNavigation";
 
 export default async function AdminMediaPage() {
   const isAdmin = await checkAdminAuth();
@@ -11,11 +10,12 @@ export default async function AdminMediaPage() {
   }
 
   return (
-    <>
-      <AdminNavigation />
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <MediaLibrary mode="browse" />
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Media Library</h1>
+        <p className="text-gray-600">Manage your images and media files</p>
       </div>
-    </>
+      <MediaLibrary mode="browse" />
+    </div>
   );
 }

@@ -1,9 +1,8 @@
+import { redirect } from "next/navigation";
 import ModernPageEditor from "@/components/admin/ModernPageEditor";
 import { checkAdminAuth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import AdminNavigation from "@/components/admin/AdminNavigation";
 
-export default async function NewPagePage() {
+export default async function NewPageAdmin() {
   const { isAdmin } = await checkAdminAuth();
 
   if (!isAdmin) {
@@ -11,13 +10,12 @@ export default async function NewPagePage() {
   }
 
   return (
-    <>
-      <AdminNavigation />
-      <main className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ModernPageEditor />
-        </div>
-      </main>
-    </>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Create New Page</h1>
+        <p className="text-gray-600">Build your page using the modern editor</p>
+      </div>
+      <ModernPageEditor />
+    </div>
   );
 }

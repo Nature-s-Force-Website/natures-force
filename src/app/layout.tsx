@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import GlobalHeader from "@/components/site/GlobalHeader";
-import GlobalFooter from "@/components/site/GlobalFooter";
 import { createServerComponentClient } from "@/lib/supabase-server";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -146,9 +145,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         style={{ fontFamily: '"Alan Sans", sans-serif' }}
       >
-        <GlobalHeader />
-        <main className="flex-1">{children}</main>
-        <GlobalFooter />
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );

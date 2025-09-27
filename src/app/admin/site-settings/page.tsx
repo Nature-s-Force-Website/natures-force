@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AdminNavigation from "@/components/admin/AdminNavigation";
 
 interface NavItem {
   label: string;
@@ -346,8 +345,7 @@ export default function SiteSettingsPage() {
   }
 
   return (
-    <>
-      <AdminNavigation />
+    <div className="max-w-7xl mx-auto">
       <style jsx global>{`
         .admin-form label {
           color: #111827 !important;
@@ -1126,6 +1124,6 @@ export default function SiteSettingsPage() {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

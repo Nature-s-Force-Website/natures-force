@@ -1,9 +1,8 @@
-import ModernPageEditor from "@/components/admin/ModernPageEditor";
-import { createServerComponentClient } from "@/lib/supabase-server";
-import { notFound } from "next/navigation";
-import { checkAdminAuth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import AdminNavigation from "@/components/admin/AdminNavigation";
+import { checkAdminAuth } from "@/lib/auth";
+import { createServerComponentClient } from "@/lib/supabase-server";
+import ModernPageEditor from "@/components/admin/ModernPageEditor";
+import { notFound } from "next/navigation";
 
 export default async function EditPagePage({
   params,
@@ -30,13 +29,12 @@ export default async function EditPagePage({
   }
 
   return (
-    <>
-      <AdminNavigation />
-      <main className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ModernPageEditor pageId={id} initialData={page} />
-        </div>
-      </main>
-    </>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Edit Page</h1>
+        <p className="text-gray-600">Modify your page content and settings</p>
+      </div>
+      <ModernPageEditor pageId={id} initialData={page} />
+    </div>
   );
 }
