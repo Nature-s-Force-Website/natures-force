@@ -45,9 +45,26 @@ export async function generateMetadata(): Promise<Metadata> {
         : [{ name: "Nature's Force" }],
       robots: "index, follow",
       icons: {
-        icon: metadata.favicon_url || "/favicon.ico",
+        icon: [
+          {
+            url: metadata.favicon_url || "/favicon.ico",
+            sizes: "32x32",
+            type: "image/x-icon",
+          },
+          {
+            url: metadata.favicon_url || "/favicon.ico",
+            sizes: "16x16",
+            type: "image/x-icon",
+          },
+        ],
         shortcut: metadata.favicon_url || "/favicon.ico",
-        apple: metadata.favicon_url || "/favicon.ico",
+        apple: [
+          {
+            url: metadata.favicon_url || "/favicon.ico",
+            sizes: "180x180",
+            type: "image/png",
+          },
+        ],
       },
       openGraph: {
         title:
@@ -81,9 +98,26 @@ export async function generateMetadata(): Promise<Metadata> {
       description:
         "Premium eco-friendly packaging solutions for your business needs",
       icons: {
-        icon: "/favicon.ico",
+        icon: [
+          {
+            url: "/favicon.ico",
+            sizes: "32x32",
+            type: "image/x-icon",
+          },
+          {
+            url: "/favicon.ico",
+            sizes: "16x16",
+            type: "image/x-icon",
+          },
+        ],
         shortcut: "/favicon.ico",
-        apple: "/favicon.ico",
+        apple: [
+          {
+            url: "/favicon.ico",
+            sizes: "180x180",
+            type: "image/png",
+          },
+        ],
       },
     };
   }
